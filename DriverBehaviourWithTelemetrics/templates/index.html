@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Detecting Insurance Claims Fraud By Using Telematics</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+<!-- bootstrap-css -->
+<link href="../static/css/bootstrap.css" rel="stylesheet" type="text/css" media="all" />
+<!--// bootstrap-css -->
+<!-- css -->
+<link rel="stylesheet" href="../static/css/style.css" type="text/css" media="all" />
+<!--// css -->
+<link rel="stylesheet" href="../static/css/owl.carousel.css" type="text/css" media="all">
+<link href="../static/css/owl.theme.css" rel="stylesheet">
+<link type="text/css" rel="stylesheet" href="../static/css/cm-overlay.css" />
+<!-- font-awesome icons -->
+<link href="../static/css/font-awesome.css" rel="stylesheet">
+<!-- //font-awesome icons -->
+<!-- font -->
+<link href="//fonts.googleapis.com/css?family=Roboto+Slab:100,300,400,700" rel="stylesheet">
+<link href='//fonts.googleapis.com/css?family=Roboto+Condensed:400,700italic,700,400italic,300italic,300' rel='stylesheet' type='text/css'>
+<!-- //font -->
+<!--script src="../static/js/jquery-1.11.1.min.js"></script-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="../static/js/bootstrap.js"></script>
+<!-- menu -->
+<link rel="stylesheet" href="../static/css/main.css">
+<!--script type="text/javascript" src="../static/js/main.js"></script-->
+<!--script type="text/javascript" src="../static/js/scripts.js"></script-->
+<!-- //menu --> 
+<script>
+$(document).ready(function() {
+	$("#high_result").hide()
+	$("#owl-demo").owlCarousel({
+ 
+		autoPlay: 3000, //Set AutoPlay to 3 seconds
+		autoPlay:true,
+		items : 3,
+		itemsDesktop : [640,5],
+		itemsDesktopSmall : [414,4]
+ 
+	});
+
+	$('#but_upload').click(function (event) {
+    event.preventDefault();
+    $('#running_status').find('span').remove();
+    var fd = new FormData();
+    var files = $('#file')[0].files[0];
+    fd.append('file',files);
+  $.post({
+    type: "POST",
+    url: "http://127.0.0.1:5000/modelexec",
+    data: fd,
+      contentType: false,
+      processData: false,
+    success: function(response){
+
+         var start_time = new Date(Date.now())
+         start_time.setMinutes(0);
+         start_time.setHours(0);
+		 var end_time = new Date ( start_time );
+		 end_time.setMinutes ( start_time.getMinutes() + response["total_minutes"] );
+
+
+		var h = end_time.getHours();
+		var m = end_time.getMinutes();
+
+		if (h < 10) h = '0' + h;
+		if (m < 10) m = '0' + m;
+
+		var dateString = h + ':' + m;
+
+		$("#result_DriveTime").text(response["total_minutes"] + " Minutes")
+		$("#result_MaxSpeed").text(response["speed_max"] + " KM/Hr")
+		$("#result_PredictionScore").text(response["prediction"])
+		prdict_val = response["prediction"]
+		if(prdict_val <= 0.30)
+		{
+			$("#result_Prediction").css('color', 'green');
+			$("#result_Prediction").text("Safe Driving")
+		}
+		else if(prdict_val > 0.30 && prdict_val <= 0.40)
+		{
+			$("#result_Prediction").css('color', 'yellow');
+			$("#result_Prediction").text("Average Driving")
+		}
+		else if(prdict_val > 0.40)
+		{
+			$("#result_Prediction").css('color', 'red');
+			$("#result_Prediction").text("Harsh Driving")
+		}
+
+		$("#high_result").show()
+		message = ''
+		for (val in response.detail_result) {
+			var cur_time = new Date( start_time );
+		    cur_time.setSeconds(start_time.getSeconds() + response.detail_result[val].second_value  );
+
+		    var h = cur_time.getHours();
+			var m = cur_time.getMinutes();
+
+			if (h < 10) h = '0' + h;
+			if (m < 10) m = '0' + m;
+
+			var dateString = h + ':' + m;
+
+			message = response.detail_result[val].path_value + " : " + dateString;
+			$("#running_status").append('<span>' + message +'</span>');
+		}
+
+
+    },
+  });
+    return false;
+});
+}); 
+</script>
+</head>
+<body>
+	<!-- banner -->
+	<div class="banner">
+		<div class="container">
+			<div class="agile-logo">
+
+				<h1><a href="index.html">
+					<img class="logo" src="https://www.griffith.ie/sites/all/themes/griffith/xlogo_homepage_new.png.pagespeed.ic.tl5XW2WyMl.png"/>
+					<span>Predicting the behaviour of a driver by using telematics and machine learning techniques</span></a></h1>
+			</div>
+			<div class="w3l-banner-grids">
+				<div class="col-md-8" style="color: yellow">
+                    <h2>The main objective of this project is to analyse the behaviour of a driver by using telematics data of a vehicle for processing claims in insurance industry.</h2>
+                </div>
+                <div class="clearfix"> </div>
+                <div class="banner-right-info">
+				</div>
+				<div class="col-md-4 w3ls-banner-left">
+					<div class="w3ls-banner-left-info">
+						<h4 style="color: yellowgreen">Student Name</h4>
+						<p style="color: yellowgreen">Madhavi Boyapati</p>
+					</div>
+					<div class="w3ls-banner-left-info">
+						<h4 style="color: yellowgreen">Student ID</h4>
+						<p style="color: yellowgreen">2942211</p>
+					</div>
+					<div class="w3ls-banner-left-info">
+						<h4 style="color: yellowgreen">Supervisor</h4>
+						<p style="color: yellowgreen">Dr. Viacheslav Filonenko</p>
+					</div>
+				</div>
+				<div class="clearfix"> </div>
+			</div>
+		</div>
+	</div>
+	<!-- //banner -->
+	<!-- about -->
+	<div class="about">
+		<div class="container">
+			<div class="wthree-about-grids">
+
+				<div class="col-md-6 wthree-about-right">
+					<h3>Upload the Vehicle Telematics Data in CSV</h3>
+					<div class="mt-5">
+					<div class="form-group">
+						<!--div class="col-sm-12">
+						<label class="col-sm-4 control-label">Test Trip Start Time</label>
+							<input type="time" id="starttime" name="starttime">
+							</div-->
+						<div class="col-sm-12" style="margin-top: 1em;">
+							<label class="col-sm-4 control-label">Select File</label>
+							<input type="file" id="file" name="file">
+						</div>
+						<div class="col-sm-12">
+							<button type="button" id="but_upload" value="Test the Model" style="margin-top:1em;margin-bottom: 2em;">Test the Model</button>
+						</div>
+					</div>
+					<h3>Driving Report:</h3>
+					<!--div><span id="model_result" style="color: darkred"></span></div-->
+						<div id="high_result">
+						<div class="col-sm-12">
+						<label style="color: #262626" class="col-sm-6 control-label">Total Driving Time:</label>
+							<label class="col-sm-6 control-label" id="result_DriveTime"></label>
+							</div>
+						<div class="col-sm-12">
+						<label style="color: #262626" class="col-sm-6 control-label">Maximum Speed:</label>
+							<label class="col-sm-6 control-label" id="result_MaxSpeed"></label>
+							</div>
+						<div class="col-sm-12">
+						<label style="color: #262626" class="col-sm-6 control-label">ML Predicted Behaviour:</label>
+							<label class="col-sm-6 control-label" id="result_Prediction"></label>
+							</div>
+						<div class="col-sm-12">
+						<label style="color: #262626" class="col-sm-6 control-label">ML Predicted Score</label>
+							<label class="col-sm-6 control-label" id="result_PredictionScore"></label>
+							</div>
+							</div>
+                    </div>						
+					</div>
+				<div id="trainmodel_div" class="col-md-6 wthree-about-left">
+					<h3>Detailed Report</h3>
+					<div class="mt-5">
+					<div class="mb-3" style="height: 500px;overflow: hidden;background: gainsboro;">
+                        <div id="running_status" style="color: blue"></div>
+                    </div>
+				</div >
+				</div >
+				<div class="clearfix"> </div>
+			</div>
+		</div>
+	</div>
+	<!-- //about -->	
+	<!-- copyright -->
+	<div class="agileits-w3layouts-footer">
+		<div class="container">
+			<p>© 2020 Griffith College - Dissertation</p>
+		</div>
+	</div>
+	<!-- //copyright -->
+	<script src="../static/js/bars.js"></script>
+	<script src="../static/js/owl.carousel.js"></script>
+</body>	
+</html>
